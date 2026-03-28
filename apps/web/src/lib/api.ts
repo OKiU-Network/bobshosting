@@ -11,7 +11,17 @@ function isLoopbackHostname(hostname: string): boolean {
   return h === 'localhost' || h === '127.0.0.1' || h === '[::1]'
 }
 
-function getApiBase(): string {
+/** Brackets required when embedding IPv6 literals in URL hosts. */
+function formatHostnameForUrl(hostname: string): string {
+  return hostname.includes(':') ? `[${hostname}]` : hostname
+}
+
+/**
+ * Resolves API origin in the browser so login always hits the same machine as the panel
+ * (port from build, usually 4000). Replaces loopback and mismatched build-time hostnames
+ * (e.g. baked LAN IP while you open the panel via public IP or another interface).
+ */
+export function getApiBase(): string {
   const raw = process.env.NEXT_PUBLIC_API_BASE_URL
   if (raw === '') return ''
 
@@ -20,19 +30,23 @@ function getApiBase(): string {
 
   if (typeof window !== 'undefined') {
     const { protocol, hostname } = window.location
+    const hostInBrowser = formatHostnameForUrl(hostname)
+
     if (trimmed !== '') {
       try {
         const u = new URL(trimmed)
-        if (isLoopbackHostname(u.hostname)) {
-          const apiPort = u.port || '4000'
-          return `${protocol}//${hostname}:${apiPort}`
+        const apiPort = u.port || '4000'
+        const buildHost = u.hostname.toLowerCase()
+        const pageHost = hostname.toLowerCase()
+        if (isLoopbackHostname(buildHost) || buildHost !== pageHost) {
+          return `${protocol}//${hostInBrowser}:${apiPort}`
         }
       } catch {
         /* invalid URL — fall through */
       }
       return trimmed
     }
-    return `${protocol}//${hostname}:4000`
+    return `${protocol}//${hostInBrowser}:4000`
   }
 
   if (trimmed !== '') return trimmed
@@ -191,12 +205,31 @@ export interface UserProfile {
 
 export const api = {
   login: async (email: string, password: string) => {
-    const res = await fetch(`${getApiBase()}/v1/auth/login`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    })
-    const json = await res.json()
+    const base = getApiBase()
+    const url = `${base}/v1/auth/login`
+    let res: Response
+    try {
+      res = await fetch(url, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      })
+    } catch {
+      throw new Error(
+        `Cannot reach the API (${url}). Use the same host for the panel (this page) and API port 4000, or set PUBLIC_API_URL correctly and rebuild the web image.`
+      )
+    }
+    const text = await res.text()
+    let json: { isSuccess?: boolean; message?: string; data?: { accessToken: string; user: UserProfile } }
+    try {
+      json = JSON.parse(text) as typeof json
+    } catch {
+      throw new Error(
+        res.ok
+          ? 'API returned non-JSON (check reverse proxy / web container).'
+          : `API HTTP ${res.status}: ${text.slice(0, 180)}`
+      )
+    }
     if (!json.isSuccess) throw new Error(json.message ?? 'Login failed')
     return json.data as { accessToken: string; user: UserProfile }
   },

@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import { getApiBase } from '@/lib/api'
 
 interface TemplateRecord {
   id: string
@@ -50,15 +51,8 @@ interface LoginResponse {
   }
 }
 
-function getApiBaseUrl() {
-  const raw = process.env.NEXT_PUBLIC_API_BASE_URL
-  if (raw === '') return ''
-  if (raw != null && String(raw).trim() !== '') return String(raw).replace(/\/$/, '')
-  return 'http://localhost:4000'
-}
-
 async function loginRequest(email: string, password: string): Promise<LoginResponse> {
-  const response = await fetch(`${getApiBaseUrl()}/v1/auth/login`, {
+  const response = await fetch(`${getApiBase()}/v1/auth/login`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ email, password })
@@ -97,7 +91,7 @@ export function PanelDashboard() {
   const isLoggedIn = useMemo(() => accessToken.length > 0, [accessToken])
 
   async function fetchTemplates(nextToken: string) {
-    const response = await fetch(`${getApiBaseUrl()}/v1/templates`, {
+    const response = await fetch(`${getApiBase()}/v1/templates`, {
       headers: { Authorization: `Bearer ${nextToken}` }
     })
     const payload = await response.json()
@@ -105,7 +99,7 @@ export function PanelDashboard() {
   }
 
   async function fetchServers(nextToken: string) {
-    const response = await fetch(`${getApiBaseUrl()}/v1/servers`, {
+    const response = await fetch(`${getApiBase()}/v1/servers`, {
       headers: { Authorization: `Bearer ${nextToken}` }
     })
     const payload = await response.json()
@@ -114,8 +108,8 @@ export function PanelDashboard() {
 
   async function fetchSettings(nextToken: string) {
     const [keysResponse, generalResponse] = await Promise.all([
-      fetch(`${getApiBaseUrl()}/v1/settings/api-keys`, { headers: { Authorization: `Bearer ${nextToken}` } }),
-      fetch(`${getApiBaseUrl()}/v1/settings/general`, { headers: { Authorization: `Bearer ${nextToken}` } })
+      fetch(`${getApiBase()}/v1/settings/api-keys`, { headers: { Authorization: `Bearer ${nextToken}` } }),
+      fetch(`${getApiBase()}/v1/settings/general`, { headers: { Authorization: `Bearer ${nextToken}` } })
     ])
     const keysPayload = await keysResponse.json()
     const generalPayload = await generalResponse.json()
@@ -142,7 +136,7 @@ export function PanelDashboard() {
   async function onCreateServer(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (!accessToken) return
-    const response = await fetch(`${getApiBaseUrl()}/v1/servers`, {
+    const response = await fetch(`${getApiBase()}/v1/servers`, {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
@@ -157,7 +151,7 @@ export function PanelDashboard() {
 
   async function onPower(serverId: string, action: 'start' | 'stop' | 'restart') {
     if (!accessToken) return
-    await fetch(`${getApiBaseUrl()}/v1/servers/${serverId}/power`, {
+    await fetch(`${getApiBase()}/v1/servers/${serverId}/power`, {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
@@ -175,7 +169,7 @@ export function PanelDashboard() {
     const params = new URLSearchParams()
     if (currentDirectory && currentDirectory !== '.') params.set('path', currentDirectory)
     const suffix = params.toString() ? `?${params.toString()}` : ''
-    const response = await fetch(`${getApiBaseUrl()}/v1/servers/${serverId}/files${suffix}`, {
+    const response = await fetch(`${getApiBase()}/v1/servers/${serverId}/files${suffix}`, {
       headers: { Authorization: `Bearer ${accessToken}` }
     })
     const payload = await response.json()
@@ -186,7 +180,7 @@ export function PanelDashboard() {
   async function onLoadLogs(serverId: string) {
     if (!accessToken) return
     setSelectedServerId(serverId)
-    const response = await fetch(`${getApiBaseUrl()}/v1/servers/${serverId}/logs`, {
+    const response = await fetch(`${getApiBase()}/v1/servers/${serverId}/logs`, {
       headers: { Authorization: `Bearer ${accessToken}` }
     })
     const payload = await response.json()
@@ -196,7 +190,7 @@ export function PanelDashboard() {
 
   async function onAllocatePort(serverId: string) {
     if (!accessToken) return
-    const response = await fetch(`${getApiBaseUrl()}/v1/servers/${serverId}/network/allocate`, {
+    const response = await fetch(`${getApiBase()}/v1/servers/${serverId}/network/allocate`, {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
@@ -213,7 +207,7 @@ export function PanelDashboard() {
     if (!accessToken || !selectedServerId) return
     const targetPath = currentDirectory === '.' ? fileName : `${currentDirectory}/${fileName}`
     const params = new URLSearchParams({ path: targetPath })
-    const response = await fetch(`${getApiBaseUrl()}/v1/servers/${selectedServerId}/files/content?${params.toString()}`, {
+    const response = await fetch(`${getApiBase()}/v1/servers/${selectedServerId}/files/content?${params.toString()}`, {
       headers: { Authorization: `Bearer ${accessToken}` }
     })
     const payload = await response.json()
@@ -225,7 +219,7 @@ export function PanelDashboard() {
 
   async function onSaveFile() {
     if (!accessToken || !selectedServerId || !currentFilePath) return
-    const response = await fetch(`${getApiBaseUrl()}/v1/servers/${selectedServerId}/files/content`, {
+    const response = await fetch(`${getApiBase()}/v1/servers/${selectedServerId}/files/content`, {
       method: 'PUT',
       headers: {
         'content-type': 'application/json',
@@ -241,7 +235,7 @@ export function PanelDashboard() {
   async function onDeletePath(targetPath: string) {
     if (!accessToken || !selectedServerId) return
     const params = new URLSearchParams({ path: targetPath })
-    const response = await fetch(`${getApiBaseUrl()}/v1/servers/${selectedServerId}/files?${params.toString()}`, {
+    const response = await fetch(`${getApiBase()}/v1/servers/${selectedServerId}/files?${params.toString()}`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${accessToken}` }
     })
@@ -252,7 +246,7 @@ export function PanelDashboard() {
 
   async function onCreateFolder() {
     if (!accessToken || !selectedServerId || !newFolderPath) return
-    const response = await fetch(`${getApiBaseUrl()}/v1/servers/${selectedServerId}/files/folder`, {
+    const response = await fetch(`${getApiBase()}/v1/servers/${selectedServerId}/files/folder`, {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
@@ -267,7 +261,7 @@ export function PanelDashboard() {
 
   async function onRunConsoleCommand() {
     if (!accessToken || !selectedServerId || !consoleCommand) return
-    const response = await fetch(`${getApiBaseUrl()}/v1/servers/${selectedServerId}/console/command`, {
+    const response = await fetch(`${getApiBase()}/v1/servers/${selectedServerId}/console/command`, {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
@@ -284,7 +278,7 @@ export function PanelDashboard() {
 
   async function onDeleteServer(serverId: string) {
     if (!accessToken) return
-    const response = await fetch(`${getApiBaseUrl()}/v1/servers/${serverId}`, {
+    const response = await fetch(`${getApiBase()}/v1/servers/${serverId}`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${accessToken}` }
     })
@@ -297,7 +291,7 @@ export function PanelDashboard() {
   async function onCreateApiKey(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (!accessToken) return
-    const response = await fetch(`${getApiBaseUrl()}/v1/settings/api-keys`, {
+    const response = await fetch(`${getApiBase()}/v1/settings/api-keys`, {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
@@ -313,7 +307,7 @@ export function PanelDashboard() {
   async function onUpdatePassword(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (!accessToken) return
-    const response = await fetch(`${getApiBaseUrl()}/v1/users/me/password`, {
+    const response = await fetch(`${getApiBase()}/v1/users/me/password`, {
       method: 'PATCH',
       headers: {
         'content-type': 'application/json',

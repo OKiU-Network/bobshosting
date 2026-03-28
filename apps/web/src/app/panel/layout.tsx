@@ -19,7 +19,17 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
       try { setUserEmail(JSON.parse(cached).email) } catch {}
     }
     setReady(true)
-    api.servers.list().then(servers => setServerList(servers.map(s => ({ id: s.id, name: s.name, status: s.status }))))
+    api.servers
+      .list()
+      .then(servers => setServerList(servers.map(s => ({ id: s.id, name: s.name, status: s.status }))))
+      .catch((e: unknown) => {
+        const msg = e instanceof Error ? e.message : String(e)
+        if (/unauthorized/i.test(msg)) {
+          localStorage.removeItem('wave_token')
+          localStorage.removeItem('wave_user')
+          router.replace('/login')
+        }
+      })
   }, [router])
 
   if (!ready) return (
