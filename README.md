@@ -50,7 +50,8 @@ If **`curl` returns 404**, the file is not at that path: confirm the default bra
 
 If the installer prints **`set: pipefail: invalid option`**, scripts were saved with **Windows CRLF**. On the server run `sed -i 's/\r$//' scripts/*.sh`, or `git pull` after our `.gitattributes` fix and reset line endings.
 
-- You are asked: **Customize secrets and `PUBLIC_API_URL` now?** Answer **N** (or Enter) to use **auto-generated secrets** and **auto-detected** `PUBLIC_API_URL`. Answer **y** to type `JWT_SECRET`, `POSTGRES_PASSWORD`, and/or `PUBLIC_API_URL` (blank fields get random or auto-detect).
+- **Auto `PUBLIC_API_URL`:** prefers **private/LAN** IPv4 (`10.x`, `192.168.x`, `172.16–31.x`), not your WAN. For WAN-only hosts use **`WAVE_USE_WAN_FOR_PUBLIC_API=1`**, or set **`PUBLIC_API_URL`** (e.g. `http://192.168.1.10:4000`). You are asked: **Customize secrets and `PUBLIC_API_URL` now?** Answer **N** (or Enter) for auto secrets + auto-detect. Answer **y** to type `JWT_SECRET`, `POSTGRES_PASSWORD`, and/or `PUBLIC_API_URL` (blank fields get random or auto-detect).
+- **Changing the API URL later:** edit or remove `infra/.env.deploy` and re-run `scripts/ubuntu-first-install.sh` so the web image rebuilds with the new `NEXT_PUBLIC` API base.
 - **Private repo:** GitHub raw URLs need auth — clone with a **deploy key** or **PAT** to e.g. `/opt/wave-hosting`, then:
 
 ```bash
@@ -58,7 +59,7 @@ cd /opt/wave-hosting && sudo bash scripts/bootstrap.sh
 ```
 
 - **No prompts** (CI / cloud-init): `export WAVE_NONINTERACTIVE=1` before running `bootstrap.sh`.
-- **Git “diverged” / fast-forward failed:** bootstrap now stops with an error unless you force the deploy clone to match GitHub: `export WAVE_GIT_RESET=1` (drops **local** commits under `/opt/wave-hosting` only), then re-run the one-liner or `bootstrap.sh`.
+- **Git “diverged” (e.g. after a force-push):** if you use **`curl … | sudo -E bash`**, bootstrap **automatically** runs `git reset --hard origin/main` on `/opt/wave-hosting` so the server matches GitHub. Set **`WAVE_GIT_NO_AUTO_RESET=1`** only if you intentionally keep server-only commits on that clone. If you run **`sudo bash scripts/bootstrap.sh`** from a real file path (not a pipe), set **`WAVE_GIT_RESET=1`** when histories diverge, or reset manually with `git -C /opt/wave-hosting fetch origin main && git reset --hard origin/main`.
 - After bootstrap, the same machine can be re-run with `sudo bash scripts/ubuntu-first-install.sh` (see `scripts/ubuntu-first-install.sh` for rebuild behavior).
 
 **Compose: `dependency failed to start: … api … unhealthy`**

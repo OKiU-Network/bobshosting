@@ -23,7 +23,9 @@ set -o pipefail
 #   WAVE_CLONE_DIR    — default /opt/wave-hosting
 #   WAVE_BRANCH       — default main
 #   WAVE_NONINTERACTIVE=1 — no prompts; same as answering "no" to custom .env
-#   WAVE_GIT_RESET=1 — if the clone diverged from origin, reset hard to origin/WAVE_BRANCH (drops local commits)
+#   WAVE_USE_WAN_FOR_PUBLIC_API=1 — auto PUBLIC_API_URL uses WAN (ipify); default is LAN/private IP only
+#   WAVE_GIT_RESET=1 — if the clone diverged, reset hard to origin/WAVE_BRANCH (drops local commits on the clone)
+#   WAVE_GIT_NO_AUTO_RESET=1 — curl|bash normally auto-resets a diverged /opt/wave-hosting; set this to abort instead
 #
 # Use bash (not dash). For: curl ... | sudo bash
 # =============================================================================
@@ -101,20 +103,26 @@ resolve_repo_root() {
     elif git -C "${dest}" pull --ff-only 2>/dev/null; then
       :
     else
-      case "${WAVE_GIT_RESET:-}" in
-        1|true|yes|YES)
-          warn "WAVE_GIT_RESET=1 — discarding local commits; resetting to origin/${branch}"
-          git -C "${dest}" reset --hard "origin/${branch}"
-          ;;
-        *)
-          err "Git fast-forward failed: ${dest} and origin/${branch} have diverged."
-          err "Typical after a force-push: discard the server's extra commit and match GitHub —"
-          err "  export WAVE_GIT_RESET=1   # same WAVE_REPO_URL as before"
-          err "  then re-run the same bootstrap curl | sudo -E bash one-liner"
-          err "Or manually: sudo git -C ${dest} fetch origin ${branch} && sudo git -C ${dest} reset --hard origin/${branch}"
-          exit 1
-          ;;
-      esac
+      # curl | sudo bash is always a deploy refresh: match GitHub even after a force-push (no extra env vars).
+      if invoked_from_pipe_or_stdin && [[ ! "${WAVE_GIT_NO_AUTO_RESET:-}" =~ ^(1|true|yes|YES)$ ]]; then
+        warn "Clone diverged from origin/${branch} — resetting ${dest} to match GitHub (pipe bootstrap)."
+        warn "To keep local commits on the server clone instead: export WAVE_GIT_NO_AUTO_RESET=1 and merge manually."
+        git -C "${dest}" reset --hard "origin/${branch}"
+      else
+        case "${WAVE_GIT_RESET:-}" in
+          1|true|yes|YES)
+            warn "WAVE_GIT_RESET=1 — discarding local commits; resetting to origin/${branch}"
+            git -C "${dest}" reset --hard "origin/${branch}"
+            ;;
+          *)
+            err "Git fast-forward failed: ${dest} and origin/${branch} have diverged."
+            err "From a normal checkout run: export WAVE_GIT_RESET=1 before bootstrap, or:"
+            err "  sudo git -C ${dest} fetch origin ${branch} && sudo git -C ${dest} reset --hard origin/${branch}"
+            err "Pipe installs auto-reset unless WAVE_GIT_NO_AUTO_RESET=1."
+            exit 1
+            ;;
+        esac
+      fi
     fi
   else
     log "Cloning ${WAVE_REPO_URL} → ${dest} (branch ${branch})…"
@@ -134,24 +142,56 @@ resolve_repo_root() {
 }
 
 # Same logic as ubuntu-first-install.sh (keep in sync for auto-detect)
+is_private_ipv4() {
+  local a=$1
+  [[ -z "$a" || "$a" =~ ^127\. ]] && return 1
+  [[ "$a" =~ ^10\. ]] && return 0
+  [[ "$a" =~ ^192\.168\. ]] && return 0
+  [[ "$a" =~ ^172\.(1[6-9]|2[0-9]|3[0-1])\. ]] && return 0
+  return 1
+}
+
+route_src_ipv4() {
+  ip -4 route get 1.1.1.1 2>/dev/null | awk '{for(i=1;i<=NF;i++) if($i=="src") print $(i+1); exit}'
+}
+
 detect_public_api_url() {
   if [[ -n "${PUBLIC_API_URL:-}" ]]; then
     echo "${PUBLIC_API_URL}"
     return
   fi
-  local ip
-  ip=$(curl -4sSf --connect-timeout 5 https://api.ipify.org 2>/dev/null || true)
-  if [[ -n "$ip" ]] && [[ "$ip" =~ ^[0-9.]+$ ]]; then
+  local ip w
+  for w in $(hostname -I 2>/dev/null); do
+    if is_private_ipv4 "$w"; then
+      echo "http://${w}:4000"
+      return
+    fi
+  done
+  ip=$(route_src_ipv4)
+  if [[ -n "$ip" ]] && is_private_ipv4 "$ip"; then
     echo "http://${ip}:4000"
     return
   fi
-  ip=$(ip -4 route get 1.1.1.1 2>/dev/null | awk '{for(i=1;i<=NF;i++) if($i=="src") print $(i+1); exit}' || true)
+  case "${WAVE_USE_WAN_FOR_PUBLIC_API:-}" in
+    1|true|yes|YES)
+      ip=$(curl -4sSf --connect-timeout 5 https://api.ipify.org 2>/dev/null || true)
+      if [[ -n "$ip" ]] && [[ "$ip" =~ ^[0-9.]+$ ]]; then
+        echo "http://${ip}:4000"
+        return
+      fi
+      ;;
+  esac
+  ip=$(route_src_ipv4)
   if [[ -n "$ip" ]]; then
     echo "http://${ip}:4000"
     return
   fi
-  ip=$(hostname -I 2>/dev/null | awk '{print $1}')
-  echo "http://${ip:-127.0.0.1}:4000"
+  for w in $(hostname -I 2>/dev/null); do
+    [[ "$w" =~ ^127\. ]] && continue
+    echo "http://${w}:4000"
+    return
+  done
+  echo "http://127.0.0.1:4000"
 }
 
 write_env_deploy() {
