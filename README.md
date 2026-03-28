@@ -59,3 +59,26 @@ cd /opt/wave-hosting && sudo bash scripts/bootstrap.sh
 
 - **No prompts** (CI / cloud-init): `export WAVE_NONINTERACTIVE=1` before running `bootstrap.sh`.
 - After bootstrap, the same machine can be re-run with `sudo bash scripts/ubuntu-first-install.sh` (see `scripts/ubuntu-first-install.sh` for rebuild behavior).
+
+## Attribution, inspiration, and legal
+
+### Relationship to Pterodactyl (and similar panels)
+
+This repository is an **independent** hosting stack. It targets a **similar** problem space to panels such as [**Pterodactyl**](https://github.com/pterodactyl/panel) (remote nodes, game servers, install templates, operator-facing UI). It is **not** a fork or official derivative of Pterodactyl Panel, is **not** affiliated with, endorsed by, or maintained by the Pterodactyl project or its contributors, and must not be marketed as “Pterodactyl” or implied official compatibility unless you document and implement that yourself.
+
+Optional tooling: `npm run fetch:eggs` runs `scripts/fetch-pterodactyl-eggs.mjs`, which **downloads stock egg definitions** from the public `pterodactyl/panel` Git tree for **import/conversion** into Wave’s own template format. That upstream content remains under [**Pterodactyl Panel’s license**](https://github.com/pterodactyl/panel/blob/develop/LICENSE.md) (MIT as of common releases—verify the branch you fetch). You are responsible for complying with upstream terms when you redistribute or ship derived data.
+
+### What we actually built on
+
+- **Application stack**: TypeScript, Node.js, **Next.js** (App Router), **Fastify**, **Docker** / Compose, **PostgreSQL**, **nginx** (see `infra/`), shell bootstrap for **Ubuntu** LTS.
+- **Design**: Original API, web panel, agents, and data models unless individual files state otherwise; parallels to “panel + daemon + eggs” are **conceptual**, not a code copy of Pterodactyl’s Panel or Wings.
+
+### AI-assisted development
+
+A large share of this codebase was **produced or reshaped using AI coding assistants** (e.g. integrated editor tools and large language models) **under human review and direction**. That does not remove the need for your own **security review**, **compliance** checks, and **testing** before production. Operators remain responsible for deployment, data protection, and any customer-facing claims.
+
+### Legal (short disclaimer)
+
+- **Trademarks**: Names such as *Pterodactyl*, *Docker*, *Ubuntu*, *Next.js*, *GitHub*, and others are **trademarks** of their respective owners. This project is not sponsored by them.
+- **No warranty**: Software is provided **“as is”**, without warranty of any kind. For redistribution and modification terms, follow the **`LICENSE`** file in this repository when one is published (the root `package.json` is currently `private`; add an explicit license before external distribution if needed).
+- **Not legal advice**: This section is for transparency and orientation only, not a substitute for professional legal counsel.
