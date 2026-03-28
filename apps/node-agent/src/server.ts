@@ -16,7 +16,7 @@ import {
   readRuntimeInfo,
   startupUsesBashSyntax,
   toDockerHostBindPath
-} from './platform'
+} from './platform.js'
 
 // ── Docker client (Windows: named pipe //./pipe/docker_engine; Linux: /var/run/docker.sock)
 const dockerClient = createDockerClient()

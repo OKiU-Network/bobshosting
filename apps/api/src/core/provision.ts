@@ -1,8 +1,13 @@
 import { randomUUID } from 'node:crypto'
 import type { ProvisionOrderInput, ServerRecord } from '@wave/shared'
-import { getTemplateById, store } from '../data/store'
-import { allocatePorts, releasePorts } from './network'
-import { resolveDockerImage, resolveStartupCommand } from './template-runtime'
+import { getTemplateById, store } from '../data/store.js'
+import { allocatePorts, releasePorts } from './network.js'
+import { resolveDockerImage, resolveStartupCommand } from './template-runtime.js'
+import {
+  deleteContainer,
+  provisionContainer,
+  setContainerPower
+} from './node-agent-client.js'
 
 /** Maps panel "game version" to the correct Pterodactyl egg env key (Java image stays separate). */
 export function applyGameVersionToTemplateEnv(
@@ -32,7 +37,6 @@ export function applyGameVersionToTemplateEnv(
   }
   return { ...env }
 }
-import { deleteContainer, provisionContainer, setContainerPower } from './node-agent-client'
 
 interface CreateServerInput {
   userId: string

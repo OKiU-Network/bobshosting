@@ -1,10 +1,10 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { randomUUID } from 'node:crypto'
 import { z } from 'zod'
-import { store, type UserRecord } from '../data/store'
-import { allocatePorts, releasePorts } from '../core/network'
-import { assertCanCreateServer, assertResourcesWithinCaps } from '../core/hosting-limits'
-import { createServer, deleteServer, provisionFromOrder, setServerPower } from '../core/provision'
+import { store, type UserRecord } from '../data/store.js'
+import { allocatePorts, releasePorts } from '../core/network.js'
+import { assertCanCreateServer, assertResourcesWithinCaps } from '../core/hosting-limits.js'
+import { createServer, deleteServer, provisionFromOrder, setServerPower } from '../core/provision.js'
 import {
   createContainerFolder,
   deleteContainerPath,
@@ -16,7 +16,7 @@ import {
   getContainerStartupCommand,
   saveContainerFileContent,
   saveContainerStartupCommand
-} from '../core/node-agent-client'
+} from '../core/node-agent-client.js'
 
 const idempotencyLog = new Map<string, unknown>()
 

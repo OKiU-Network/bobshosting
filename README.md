@@ -58,7 +58,14 @@ cd /opt/wave-hosting && sudo bash scripts/bootstrap.sh
 ```
 
 - **No prompts** (CI / cloud-init): `export WAVE_NONINTERACTIVE=1` before running `bootstrap.sh`.
+- **Git “diverged” / fast-forward failed:** bootstrap now stops with an error unless you force the deploy clone to match GitHub: `export WAVE_GIT_RESET=1` (drops **local** commits under `/opt/wave-hosting` only), then re-run the one-liner or `bootstrap.sh`.
 - After bootstrap, the same machine can be re-run with `sudo bash scripts/ubuntu-first-install.sh` (see `scripts/ubuntu-first-install.sh` for rebuild behavior).
+
+**Compose: `dependency failed to start: … api … unhealthy`**
+
+1. Inspect the API process: `docker logs wavehosting-api-1` (or `docker compose -p wavehosting --env-file infra/.env.deploy -f infra/docker-compose.yml logs api`).
+2. **Corrupt panel data:** the API reads `store.json` from the `wave_api_data` volume (`apps/api/.data` in the container). Invalid JSON or a wrong shape can prevent startup; the API now falls back to seed defaults and logs a warning, but if an older image crashed earlier, upgrade the image and restart, or remove the bad file by attaching to the volume and deleting `store.json`, then `docker compose … up -d` again.
+3. Confirm the health URL from the host: `curl -sS http://127.0.0.1:4000/v1/health` (expect JSON with `isSuccess`).
 
 ## Attribution, inspiration, and legal
 

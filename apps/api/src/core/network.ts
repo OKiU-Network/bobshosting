@@ -1,4 +1,4 @@
-import { store } from '../data/store'
+import { store } from '../data/store.js'
 
 export interface AllocatePortsInput {
   nodeId: string

@@ -23,6 +23,7 @@ set -o pipefail
 #   WAVE_CLONE_DIR    — default /opt/wave-hosting
 #   WAVE_BRANCH       — default main
 #   WAVE_NONINTERACTIVE=1 — no prompts; same as answering "no" to custom .env
+#   WAVE_GIT_RESET=1 — if the clone diverged from origin, reset hard to origin/WAVE_BRANCH (drops local commits)
 #
 # Use bash (not dash). For: curl ... | sudo bash
 # =============================================================================
@@ -95,7 +96,23 @@ resolve_repo_root() {
     git config --global --add safe.directory "${dest}" 2>/dev/null || true
     git -C "${dest}" fetch --depth 1 origin "${branch}" 2>/dev/null || git -C "${dest}" fetch origin
     git -C "${dest}" checkout "${branch}" 2>/dev/null || true
-    git -C "${dest}" pull --ff-only origin "${branch}" 2>/dev/null || git -C "${dest}" pull --ff-only || true
+    if git -C "${dest}" pull --ff-only "origin" "${branch}" 2>/dev/null; then
+      :
+    elif git -C "${dest}" pull --ff-only 2>/dev/null; then
+      :
+    else
+      case "${WAVE_GIT_RESET:-}" in
+        1|true|yes|YES)
+          warn "WAVE_GIT_RESET=1 — discarding local commits; resetting to origin/${branch}"
+          git -C "${dest}" reset --hard "origin/${branch}"
+          ;;
+        *)
+          err "Git fast-forward failed: ${dest} and origin/${branch} have diverged."
+          err "Resolve manually (merge/rebase), or re-run with: WAVE_GIT_RESET=1 curl ... | sudo -E bash"
+          exit 1
+          ;;
+      esac
+    fi
   else
     log "Cloning ${WAVE_REPO_URL} → ${dest} (branch ${branch})…"
     install -d -m 755 "$(dirname "$dest")"

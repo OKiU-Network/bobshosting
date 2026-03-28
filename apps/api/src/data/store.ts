@@ -56,9 +56,17 @@ interface PersistedStore {
 function loadPterodactylTemplates(): ServerRuntimeTemplate[] {
   const here = path.dirname(fileURLToPath(import.meta.url))
   const bundlePath = path.join(here, 'pterodactyl-eggs.json')
-  const raw = fs.readFileSync(bundlePath, 'utf-8')
-  const parsed = JSON.parse(raw) as { templates: ServerRuntimeTemplate[] }
-  return parsed.templates
+  try {
+    const raw = fs.readFileSync(bundlePath, 'utf-8')
+    const parsed = JSON.parse(raw) as { templates?: ServerRuntimeTemplate[] }
+    if (!parsed || !Array.isArray(parsed.templates)) {
+      throw new Error('pterodactyl-eggs.json: missing templates array')
+    }
+    return parsed.templates
+  } catch (err) {
+    console.error(`[wave-api] Cannot load template bundle at ${bundlePath}`, err)
+    throw err
+  }
 }
 
 /** Games not in stock Pterodactyl seeds — single-image templates */
@@ -171,11 +179,38 @@ function getStorePath() {
   return path.join(getDataDirectoryPath(), 'store.json')
 }
 
+function normalizePersistedStore(raw: unknown): PersistedStore | null {
+  if (!raw || typeof raw !== 'object') return null
+  const o = raw as Record<string, unknown>
+  if (!Array.isArray(o.users) || !Array.isArray(o.nodes) || !Array.isArray(o.servers)) return null
+  if (o.apiKeys !== undefined && !Array.isArray(o.apiKeys)) return null
+  if (o.hostingLimits !== undefined && (typeof o.hostingLimits !== 'object' || o.hostingLimits === null)) return null
+  return {
+    users: o.users as UserRecord[],
+    nodes: o.nodes as NodeRecord[],
+    servers: o.servers as ServerRecord[],
+    apiKeys: (o.apiKeys as ApiKeyRecord[] | undefined) ?? [],
+    hostingLimits: o.hostingLimits as HostingLimitsRecord | undefined
+  }
+}
+
 function loadPersistedStore(): PersistedStore | null {
   const storePath = getStorePath()
   if (!fs.existsSync(storePath)) return null
-  const raw = fs.readFileSync(storePath, 'utf-8')
-  return JSON.parse(raw) as PersistedStore
+  try {
+    const raw = JSON.parse(fs.readFileSync(storePath, 'utf-8')) as unknown
+    const normalized = normalizePersistedStore(raw)
+    if (!normalized) {
+      console.error(
+        `[wave-api] Ignoring invalid store.json (${storePath}) — expected users, nodes, servers arrays. Remove the file to start fresh.`
+      )
+      return null
+    }
+    return normalized
+  } catch (err) {
+    console.error('[wave-api] Failed to read store.json; using seed defaults.', err)
+    return null
+  }
 }
 
 function savePersistedStore(input: PersistedStore): void {

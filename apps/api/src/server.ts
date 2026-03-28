@@ -2,7 +2,7 @@ import 'dotenv/config'
 import Fastify from 'fastify'
 import cors from '@fastify/cors'
 import jwt from '@fastify/jwt'
-import { v1Routes } from './routes/v1'
+import { v1Routes } from './routes/v1.js'
 
 async function buildServer() {
   const app = Fastify({ logger: true })
