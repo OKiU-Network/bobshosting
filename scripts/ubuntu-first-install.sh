@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# Force bash first — CRLF or `sh` breaks `pipefail` before this ran when the guard lived below long comments.
+[ -n "${BASH_VERSION:-}" ] || exec /usr/bin/env bash "$0" "$@"
+set -eu
+set -o pipefail
+
 # =============================================================================
 # Wave Hosting — Ubuntu first-time install (22.04 / 24.04 LTS)
 # =============================================================================
@@ -23,12 +28,10 @@
 # volumes stay valid. For a full wipe: docker compose -p wavehosting -f infra/docker-compose.yml down -v
 #   && rm -f infra/.env.deploy && run this script again.
 #
-# Must run with bash (not dash). Shebang below re-execs under bash if needed.
+# If you see "set: pipefail: invalid option", the file has Windows CRLF — run:
+#   sed -i 's/\r$//' scripts/ubuntu-first-install.sh
+# Repo uses .gitattributes so fresh git checkouts use LF.
 # =============================================================================
-if [ -z "${BASH_VERSION:-}" ]; then
-  exec /usr/bin/env bash "$0" "$@"
-fi
-set -euo pipefail
 
 RED='\033[0;31m'
 GRN='\033[0;32m'

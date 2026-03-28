@@ -46,7 +46,9 @@ export WAVE_REPO_URL=https://github.com/OKiU-Network/bobshosting.git
 curl -fsSL https://raw.githubusercontent.com/OKiU-Network/bobshosting/main/scripts/bootstrap.sh | sudo -E bash
 ```
 
-If your default branch is not `main`, change it in the `raw.githubusercontent.com` URL.
+If **`curl` returns 404**, the file is not at that path: confirm the default branch on GitHub is **`main`** (Settings → General), or change the URL to `.../master/...` (or your branch name). **Private** repos return 404 for `raw.githubusercontent.com` without a token — clone with a deploy key, then run `sudo bash scripts/bootstrap.sh` from the clone.
+
+If the installer prints **`set: pipefail: invalid option`**, scripts were saved with **Windows CRLF**. On the server run `sed -i 's/\r$//' scripts/*.sh`, or `git pull` after our `.gitattributes` fix and reset line endings.
 
 - You are asked: **Customize secrets and `PUBLIC_API_URL` now?** Answer **N** (or Enter) to use **auto-generated secrets** and **auto-detected** `PUBLIC_API_URL`. Answer **y** to type `JWT_SECRET`, `POSTGRES_PASSWORD`, and/or `PUBLIC_API_URL` (blank fields get random or auto-detect).
 - **Private repo:** GitHub raw URLs need auth — clone with a **deploy key** or **PAT** to e.g. `/opt/wave-hosting`, then:

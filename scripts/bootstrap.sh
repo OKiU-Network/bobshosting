@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+[ -n "${BASH_VERSION:-}" ] || exec /usr/bin/env bash "$0" "$@"
+set -eu
+set -o pipefail
+
 # =============================================================================
 # Wave Hosting — remote / one-liner bootstrap (Ubuntu 22.04 / 24.04)
 # =============================================================================
@@ -9,6 +13,7 @@
 # --- One-liner (public repo: https://github.com/OKiU-Network/bobshosting) ---
 #   export WAVE_REPO_URL=https://github.com/OKiU-Network/bobshosting.git
 #   curl -fsSL https://raw.githubusercontent.com/OKiU-Network/bobshosting/main/scripts/bootstrap.sh | sudo -E bash
+# If curl returns 404: default branch may not be "main", or repo is private (clone first).
 #
 # Private repo: clone with a deploy key or PAT first, then:
 #   cd /opt/wave-hosting && sudo bash scripts/bootstrap.sh
@@ -21,10 +26,6 @@
 #
 # Use bash (not dash). For: curl ... | sudo bash
 # =============================================================================
-if [ -z "${BASH_VERSION:-}" ]; then
-  exec /usr/bin/env bash "$0" "$@"
-fi
-set -euo pipefail
 
 RED='\033[0;31m'
 GRN='\033[0;32m'
@@ -196,7 +197,7 @@ main() {
   maybe_prompt_custom_env "$REPO_ROOT"
 
   log "Starting full install (Docker + stack)…"
-  exec bash "${REPO_ROOT}/scripts/ubuntu-first-install.sh"
+  exec /usr/bin/env bash "${REPO_ROOT}/scripts/ubuntu-first-install.sh"
 }
 
 main "$@"
