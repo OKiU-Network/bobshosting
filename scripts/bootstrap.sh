@@ -108,7 +108,10 @@ resolve_repo_root() {
           ;;
         *)
           err "Git fast-forward failed: ${dest} and origin/${branch} have diverged."
-          err "Resolve manually (merge/rebase), or re-run with: WAVE_GIT_RESET=1 curl ... | sudo -E bash"
+          err "Typical after a force-push: discard the server's extra commit and match GitHub —"
+          err "  export WAVE_GIT_RESET=1   # same WAVE_REPO_URL as before"
+          err "  then re-run the same bootstrap curl | sudo -E bash one-liner"
+          err "Or manually: sudo git -C ${dest} fetch origin ${branch} && sudo git -C ${dest} reset --hard origin/${branch}"
           exit 1
           ;;
       esac
