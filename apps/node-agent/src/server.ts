@@ -33,10 +33,29 @@ function getServerDataPath(serverId: string): string {
   return path.join(getServerDataRoot(), serverId)
 }
 
+/** Panel `cpuLimit` is percent-of-one-CPU (100 = 1 core, 800 = 8 cores), same as Pterodactyl-style limits. Docker wants NanoCpus and rejects more than host cores. */
+function cpuLimitPercentToNanoCpus(cpuLimitPercent: number, hostCpuCount: number): number {
+  const host = Math.max(hostCpuCount, 1)
+  const cpusRequested = cpuLimitPercent / 100
+  const clamped = Math.min(Math.max(cpusRequested, 0.01), host)
+  return Math.round(clamped * 1_000_000_000)
+}
+
 function ensureServerDataPath(serverId: string): string {
   const p = getServerDataPath(serverId)
   fs.mkdirSync(p, { recursive: true })
   return p
+}
+
+/** Remove all on-disk data for a server (bind-mount tree). Safe-guarded to stay under SERVER_DATA_ROOT. */
+function removeServerDataDirectory(serverId: string): void {
+  if (!serverId?.trim()) return
+  const root = path.resolve(getServerDataRoot())
+  const dir = path.resolve(getServerDataPath(serverId))
+  if (!isPathInsideBase(root, dir) || dir === root) {
+    throw new Error('Refusing to delete server data outside SERVER_DATA_ROOT')
+  }
+  if (fs.existsSync(dir)) fs.rmSync(dir, { recursive: true, force: true })
 }
 
 function resolveSafePath(input: { serverId: string; relativePath?: string }): string {
@@ -803,6 +822,14 @@ async function main() {
           await pullImage(payload.image, payload.serverId)
           const exposedPorts = Object.fromEntries(payload.ports.map(p => [`${p}/tcp`, {}]))
           const portBindings = Object.fromEntries(payload.ports.map(p => [`${p}/tcp`, [{ HostPort: String(p) }]]))
+          const hostCpuCount = os.cpus().length
+          const nanoCpus = cpuLimitPercentToNanoCpus(payload.cpuLimit, hostCpuCount)
+          if (payload.cpuLimit / 100 > hostCpuCount + 1e-9) {
+            appendLog(
+              payload.serverId,
+              `[Provision] CPU limit ${payload.cpuLimit}% (${(payload.cpuLimit / 100).toFixed(2)} cores) clamped to ${hostCpuCount} host CPUs for Docker`
+            )
+          }
           const container = await dockerClient.createContainer({
             name: getContainerName(payload.serverId),
             Image: payload.image,
@@ -813,7 +840,7 @@ async function main() {
               PortBindings: portBindings,
               Binds: [`${toDockerHostBindPath(dataPath)}:/data`],
               RestartPolicy: { Name: 'unless-stopped' },
-              NanoCpus: payload.cpuLimit * 1_000_000_000,
+              NanoCpus: nanoCpus,
               Memory: payload.memoryMb * 1024 * 1024
             },
             WorkingDir: '/data'
@@ -872,12 +899,19 @@ async function main() {
     const { serverId } = request.params as { serverId: string }
     if (runtimeDriver === 'process') {
       deleteProcessRuntime(serverId)
-      return { isSuccess: true, message: 'Deleted' }
+      removeServerDataDirectory(serverId)
+      return { isSuccess: true, message: 'Process and server files removed' }
     }
     const container = await getContainerByName(serverId)
-    if (!container) return { isSuccess: false, message: 'Container not found' }
-    await container.remove({ force: true })
-    return { isSuccess: true, message: 'Container deleted' }
+    if (container) {
+      try {
+        await container.remove({ force: true })
+      } catch (err) {
+        appendLog(serverId, `[Delete] Docker remove failed (continuing to wipe data): ${(err as Error).message}`)
+      }
+    }
+    removeServerDataDirectory(serverId)
+    return { isSuccess: true, message: 'Container (if any) and server data directory removed' }
   })
 
   // ── Files ────────────────────────────────────────────────────────────────────
