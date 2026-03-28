@@ -25,7 +25,7 @@ set -o pipefail
 #   WAVE_NONINTERACTIVE=1 — no prompts; same as answering "no" to custom .env
 #   WAVE_USE_WAN_FOR_PUBLIC_API=1 — auto PUBLIC_API_URL uses WAN (ipify); default is LAN/private IP only
 #   WAVE_GIT_RESET=1 — if the clone diverged, reset hard to origin/WAVE_BRANCH (drops local commits on the clone)
-#   WAVE_GIT_NO_AUTO_RESET=1 — curl|bash normally auto-resets a diverged /opt/wave-hosting; set this to abort instead
+#   WAVE_GIT_NO_AUTO_RESET=1 — if /opt/wave-hosting diverged from origin, abort instead of auto git reset --hard
 #
 # Use bash (not dash). For: curl ... | sudo bash
 # =============================================================================
@@ -67,8 +67,10 @@ minimal_apt() {
 }
 
 invoked_from_pipe_or_stdin() {
-  local p=${BASH_SOURCE[0]}
-  [[ "$p" == '-' ]] || [[ "$p" == '/dev/stdin' ]] || [[ "$p" == '/proc/self/fd/0' ]]
+  local p=${BASH_SOURCE[0]:-}
+  # Pipe/curl installs often do not set BASH_SOURCE to "-"; stdin being a pipe is reliable.
+  [[ -p /dev/stdin ]] || [[ "$p" == '-' ]] || [[ "$p" == '/dev/stdin' ]] || [[ "$p" == '/proc/self/fd/0' ]] \
+    || [[ "$p" =~ ^/dev/fd/[0-9]+$ ]]
 }
 
 resolve_repo_root() {
@@ -103,12 +105,8 @@ resolve_repo_root() {
     elif git -C "${dest}" pull --ff-only 2>/dev/null; then
       :
     else
-      # curl | sudo bash is always a deploy refresh: match GitHub even after a force-push (no extra env vars).
-      if invoked_from_pipe_or_stdin && [[ ! "${WAVE_GIT_NO_AUTO_RESET:-}" =~ ^(1|true|yes|YES)$ ]]; then
-        warn "Clone diverged from origin/${branch} — resetting ${dest} to match GitHub (pipe bootstrap)."
-        warn "To keep local commits on the server clone instead: export WAVE_GIT_NO_AUTO_RESET=1 and merge manually."
-        git -C "${dest}" reset --hard "origin/${branch}"
-      else
+      # Deploy clone should track GitHub (force-push, one-off server commits). Opt out only if you mean it.
+      if [[ "${WAVE_GIT_NO_AUTO_RESET:-}" =~ ^(1|true|yes|YES)$ ]]; then
         case "${WAVE_GIT_RESET:-}" in
           1|true|yes|YES)
             warn "WAVE_GIT_RESET=1 — discarding local commits; resetting to origin/${branch}"
@@ -116,12 +114,15 @@ resolve_repo_root() {
             ;;
           *)
             err "Git fast-forward failed: ${dest} and origin/${branch} have diverged."
-            err "From a normal checkout run: export WAVE_GIT_RESET=1 before bootstrap, or:"
-            err "  sudo git -C ${dest} fetch origin ${branch} && sudo git -C ${dest} reset --hard origin/${branch}"
-            err "Pipe installs auto-reset unless WAVE_GIT_NO_AUTO_RESET=1."
+            err "Run: sudo git -C ${dest} fetch origin ${branch} && sudo git -C ${dest} reset --hard origin/${branch}"
+            err "Or: export WAVE_GIT_RESET=1, or omit WAVE_GIT_NO_AUTO_RESET so bootstrap can auto-reset."
             exit 1
             ;;
         esac
+      else
+        warn "Clone diverged from origin/${branch} — resetting ${dest} to match GitHub."
+        warn "To keep local commits on this machine: export WAVE_GIT_NO_AUTO_RESET=1 before bootstrap."
+        git -C "${dest}" reset --hard "origin/${branch}"
       fi
     fi
   else

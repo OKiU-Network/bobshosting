@@ -59,7 +59,7 @@ cd /opt/wave-hosting && sudo bash scripts/bootstrap.sh
 ```
 
 - **No prompts** (CI / cloud-init): `export WAVE_NONINTERACTIVE=1` before running `bootstrap.sh`.
-- **Git “diverged” (e.g. after a force-push):** if you use **`curl … | sudo -E bash`**, bootstrap **automatically** runs `git reset --hard origin/main` on `/opt/wave-hosting` so the server matches GitHub. Set **`WAVE_GIT_NO_AUTO_RESET=1`** only if you intentionally keep server-only commits on that clone. If you run **`sudo bash scripts/bootstrap.sh`** from a real file path (not a pipe), set **`WAVE_GIT_RESET=1`** when histories diverge, or reset manually with `git -C /opt/wave-hosting fetch origin main && git reset --hard origin/main`.
+- **Git “diverged” (e.g. after a force-push):** when bootstrap updates **`/opt/wave-hosting`**, it **defaults** to **`git reset --hard origin/main`** so the deploy tree matches GitHub. Set **`WAVE_GIT_NO_AUTO_RESET=1`** only if you must keep server-only commits there; then use **`WAVE_GIT_RESET=1`** or reset manually when you want to align with GitHub.
 - After bootstrap, the same machine can be re-run with `sudo bash scripts/ubuntu-first-install.sh` (see `scripts/ubuntu-first-install.sh` for rebuild behavior).
 
 **Compose: `dependency failed to start: … api … unhealthy`**
