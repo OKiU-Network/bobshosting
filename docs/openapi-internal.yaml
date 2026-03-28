@@ -1,0 +1,45 @@
+openapi: 3.0.3
+info:
+  title: Wave Hosting API
+  version: 0.1.0
+servers:
+  - url: http://localhost:4000
+paths:
+  /v1/auth/login:
+    post:
+      summary: Login
+  /v1/templates:
+    get:
+      summary: List runtime templates
+  /v1/servers:
+    get:
+      summary: List servers
+    post:
+      summary: Create server
+  /v1/servers/{serverId}/power:
+    post:
+      summary: Update power state
+  /v1/servers/{serverId}/network:
+    get:
+      summary: Get network ports
+  /v1/servers/{serverId}/network/allocate:
+    post:
+      summary: Allocate extra ports
+  /v1/servers/{serverId}/network/release:
+    post:
+      summary: Release ports
+  /v1/orders/provision:
+    post:
+      summary: Webshop provision hook
+  /v1/orders/suspend:
+    post:
+      summary: Webshop suspend hook
+  /v1/orders/unsuspend:
+    post:
+      summary: Webshop unsuspend hook
+  /v1/orders/cancel:
+    post:
+      summary: Webshop cancel hook
+  /v1/orders/change-plan:
+    post:
+      summary: Webshop plan change hook

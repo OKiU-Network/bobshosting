@@ -1,0 +1,14 @@
+node_modules
+.next
+dist
+coverage
+.env
+.env.*
+!.env.example
+*.log
+tmp
+*.tsbuildinfo
+
+# Local / runtime data (never publish)
+apps/api/.data/
+apps/node-agent/server-data/

@@ -1,0 +1,10 @@
+node_modules
+**/node_modules
+.git
+**/.next
+**/dist
+apps/api/.data
+apps/node-agent/server-data
+*.md
+.env
+.env.*

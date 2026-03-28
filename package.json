@@ -1,0 +1,20 @@
+{
+  "name": "wave-hosting-platform",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "echo \"Run dev:web and dev:api in separate terminals\"",
+    "dev:web": "npm run dev -w apps/web",
+    "dev:api": "npm run dev -w apps/api",
+    "dev:cli": "npm run dev -w apps/cli",
+    "dev:agent": "npm run dev -w apps/node-agent",
+    "build": "npm run build -ws",
+    "lint": "npm run lint -ws",
+    "typecheck": "npm run typecheck -ws",
+    "fetch:eggs": "node scripts/fetch-pterodactyl-eggs.mjs"
+  }
+}

@@ -1,0 +1,438 @@
+{
+  "generatedAt": "2026-03-27T18:41:09.975Z",
+  "templates": [
+    {
+      "id": "ptero-minecraft-bungeecord",
+      "name": "Bungeecord",
+      "category": "game",
+      "image": "ghcr.io/pterodactyl/yolks:java_21",
+      "dockerImages": {
+        "Java 21": "ghcr.io/pterodactyl/yolks:java_21",
+        "Java 17": "ghcr.io/pterodactyl/yolks:java_17",
+        "Java 16": "ghcr.io/pterodactyl/yolks:java_16",
+        "Java 11": "ghcr.io/pterodactyl/yolks:java_11",
+        "Java 8": "ghcr.io/pterodactyl/yolks:java_8"
+      },
+      "defaultDockerImageKey": "Java 21",
+      "startupCommand": "java -Xms128M -XX:MaxRAMPercentage=95.0 -jar {{SERVER_JARFILE}}",
+      "stopCommand": "end",
+      "defaultPorts": [
+        25565
+      ],
+      "env": {
+        "BUNGEE_VERSION": "latest",
+        "SERVER_JARFILE": "bungeecord.jar"
+      },
+      "eggAuthor": "support@pterodactyl.io",
+      "eggDescription": "For a long time, Minecraft server owners have had a dream that encompasses a free, easy, and reliable way to connect multiple Minecraft servers together. BungeeCord is the answer to said dream. Whether you are a small server wishing to string multiple game-modes together, or the owner of the ShotBow Network, BungeeCord is the ideal solution for you. With the help of BungeeCord, you will be able to unlock your community's full potential.",
+      "pteroFeatures": [
+        "eula",
+        "java_version",
+        "pid_limit"
+      ],
+      "sourcePath": "database/Seeders/eggs/minecraft/egg-bungeecord.json",
+      "installPipelineId": "minecraft-bungeecord"
+    },
+    {
+      "id": "ptero-minecraft-forge-minecraft",
+      "name": "Forge Minecraft",
+      "category": "game",
+      "image": "ghcr.io/pterodactyl/yolks:java_21",
+      "dockerImages": {
+        "Java 21": "ghcr.io/pterodactyl/yolks:java_21",
+        "Java 17": "ghcr.io/pterodactyl/yolks:java_17",
+        "Java 16": "ghcr.io/pterodactyl/yolks:java_16",
+        "Java 11": "ghcr.io/pterodactyl/yolks:java_11",
+        "Java 8": "ghcr.io/pterodactyl/yolks:java_8"
+      },
+      "defaultDockerImageKey": "Java 21",
+      "startupCommand": "java -Xms128M -XX:MaxRAMPercentage=95.0 -Dterminal.jline=false -Dterminal.ansi=true $( [[  ! -f unix_args.txt ]] && printf %s \"-jar {{SERVER_JARFILE}}\" || printf %s \"@unix_args.txt\" )",
+      "stopCommand": "stop",
+      "defaultPorts": [
+        25565
+      ],
+      "env": {
+        "SERVER_JARFILE": "server.jar",
+        "MC_VERSION": "latest",
+        "BUILD_TYPE": "recommended",
+        "FORGE_VERSION": ""
+      },
+      "eggAuthor": "support@pterodactyl.io",
+      "eggDescription": "Minecraft Forge Server. Minecraft Forge is a modding API (Application Programming Interface), which makes it easier to create mods, and also make sure mods are compatible with each other.",
+      "pteroFeatures": [
+        "eula",
+        "java_version",
+        "pid_limit"
+      ],
+      "sourcePath": "database/Seeders/eggs/minecraft/egg-forge-minecraft.json",
+      "installPipelineId": "minecraft-forge"
+    },
+    {
+      "id": "ptero-minecraft-paper",
+      "name": "Paper",
+      "category": "game",
+      "image": "ghcr.io/pterodactyl/yolks:java_21",
+      "dockerImages": {
+        "Java 21": "ghcr.io/pterodactyl/yolks:java_21",
+        "Java 17": "ghcr.io/pterodactyl/yolks:java_17",
+        "Java 16": "ghcr.io/pterodactyl/yolks:java_16",
+        "Java 11": "ghcr.io/pterodactyl/yolks:java_11",
+        "Java 8": "ghcr.io/pterodactyl/yolks:java_8"
+      },
+      "defaultDockerImageKey": "Java 21",
+      "startupCommand": "java -Xms128M -XX:MaxRAMPercentage=95.0 -Dterminal.jline=false -Dterminal.ansi=true -jar {{SERVER_JARFILE}}",
+      "stopCommand": "stop",
+      "defaultPorts": [
+        25565
+      ],
+      "env": {
+        "MINECRAFT_VERSION": "latest",
+        "SERVER_JARFILE": "server.jar",
+        "DL_PATH": "",
+        "BUILD_NUMBER": "latest"
+      },
+      "eggAuthor": "parker@pterodactyl.io",
+      "eggDescription": "High performance Spigot fork that aims to fix gameplay and mechanics inconsistencies.",
+      "pteroFeatures": [
+        "eula",
+        "java_version",
+        "pid_limit"
+      ],
+      "sourcePath": "database/Seeders/eggs/minecraft/egg-paper.json",
+      "installPipelineId": "minecraft-paper"
+    },
+    {
+      "id": "ptero-minecraft-sponge-sponge-vanilla",
+      "name": "Sponge (SpongeVanilla)",
+      "category": "game",
+      "image": "ghcr.io/pterodactyl/yolks:java_21",
+      "dockerImages": {
+        "Java 21": "ghcr.io/pterodactyl/yolks:java_21",
+        "Java 16": "ghcr.io/pterodactyl/yolks:java_16",
+        "Java 11": "ghcr.io/pterodactyl/yolks:java_11",
+        "Java 8": "ghcr.io/pterodactyl/yolks:java_8"
+      },
+      "defaultDockerImageKey": "Java 21",
+      "startupCommand": "java -Xms128M -XX:MaxRAMPercentage=95.0 -jar {{SERVER_JARFILE}}",
+      "stopCommand": "stop",
+      "defaultPorts": [
+        25565
+      ],
+      "env": {
+        "SPONGE_VERSION": "1.12.2-7.3.0",
+        "SERVER_JARFILE": "server.jar"
+      },
+      "eggAuthor": "support@pterodactyl.io",
+      "eggDescription": "SpongeVanilla is the SpongeAPI implementation for Vanilla Minecraft.",
+      "pteroFeatures": [
+        "eula",
+        "java_version",
+        "pid_limit"
+      ],
+      "sourcePath": "database/Seeders/eggs/minecraft/egg-sponge--sponge-vanilla.json",
+      "installPipelineId": "minecraft-sponge"
+    },
+    {
+      "id": "ptero-minecraft-vanilla-minecraft",
+      "name": "Vanilla Minecraft",
+      "category": "game",
+      "image": "ghcr.io/pterodactyl/yolks:java_21",
+      "dockerImages": {
+        "Java 21": "ghcr.io/pterodactyl/yolks:java_21",
+        "Java 17": "ghcr.io/pterodactyl/yolks:java_17",
+        "Java 16": "ghcr.io/pterodactyl/yolks:java_16",
+        "Java 11": "ghcr.io/pterodactyl/yolks:java_11",
+        "Java 8": "ghcr.io/pterodactyl/yolks:java_8"
+      },
+      "defaultDockerImageKey": "Java 21",
+      "startupCommand": "java -Xms128M -XX:MaxRAMPercentage=95.0 -jar {{SERVER_JARFILE}}",
+      "stopCommand": "stop",
+      "defaultPorts": [
+        25565
+      ],
+      "env": {
+        "SERVER_JARFILE": "server.jar",
+        "VANILLA_VERSION": "latest"
+      },
+      "eggAuthor": "support@pterodactyl.io",
+      "eggDescription": "Minecraft is a game about placing blocks and going on adventures. Explore randomly generated worlds and build amazing things from the simplest of homes to the grandest of castles. Play in Creative Mode with unlimited resources or mine deep in Survival Mode, crafting weapons and armor to fend off dangerous mobs. Do all this alone or with friends.",
+      "pteroFeatures": [
+        "eula",
+        "java_version",
+        "pid_limit"
+      ],
+      "sourcePath": "database/Seeders/eggs/minecraft/egg-vanilla-minecraft.json",
+      "installPipelineId": "minecraft-vanilla"
+    },
+    {
+      "id": "ptero-rust-rust",
+      "name": "Rust",
+      "category": "game",
+      "image": "ghcr.io/pterodactyl/games:rust",
+      "dockerImages": {
+        "ghcr.io/pterodactyl/games:rust": "ghcr.io/pterodactyl/games:rust"
+      },
+      "defaultDockerImageKey": "ghcr.io/pterodactyl/games:rust",
+      "startupCommand": "./RustDedicated -batchmode +server.port {{SERVER_PORT}} +server.queryport {{QUERY_PORT}} +server.identity \"rust\" +rcon.port {{RCON_PORT}} +rcon.web true +server.hostname \\\"{{HOSTNAME}}\\\" +server.level \\\"{{LEVEL}}\\\" +server.description \\\"{{DESCRIPTION}}\\\" +server.url \\\"{{SERVER_URL}}\\\" +server.headerimage \\\"{{SERVER_IMG}}\\\" +server.logoimage \\\"{{SERVER_LOGO}}\\\" +server.maxplayers {{MAX_PLAYERS}} +rcon.password \\\"{{RCON_PASS}}\\\" +server.saveinterval {{SAVEINTERVAL}} +app.port {{APP_PORT}}  $( [ -z ${MAP_URL} ] && printf %s \"+server.worldsize \\\"{{WORLD_SIZE}}\\\" +server.seed \\\"{{WORLD_SEED}}\\\"\" || printf %s \"+server.levelurl {{MAP_URL}}\" ) {{ADDITIONAL_ARGS}}",
+      "stopCommand": "quit",
+      "defaultPorts": [
+        28015
+      ],
+      "env": {
+        "HOSTNAME": "A Rust Server",
+        "FRAMEWORK": "vanilla",
+        "LEVEL": "Procedural Map",
+        "DESCRIPTION": "Powered by Pterodactyl",
+        "SERVER_URL": "http://pterodactyl.io",
+        "WORLD_SIZE": "3000",
+        "WORLD_SEED": "",
+        "MAX_PLAYERS": "40",
+        "SERVER_IMG": "",
+        "QUERY_PORT": "27017",
+        "RCON_PORT": "28016",
+        "RCON_PASS": "",
+        "SAVEINTERVAL": "60",
+        "ADDITIONAL_ARGS": "",
+        "APP_PORT": "28082",
+        "SERVER_LOGO": "",
+        "MAP_URL": ""
+      },
+      "eggAuthor": "support@pterodactyl.io",
+      "eggDescription": "The only aim in Rust is to survive. To do this you will need to overcome struggles such as hunger, thirst and cold. Build a fire. Build a shelter. Kill animals for meat. Protect yourself from other players, and kill them for meat. Create alliances with other players and form a town. Do whatever it takes to survive.",
+      "pteroFeatures": [
+        "steam_disk_space"
+      ],
+      "sourcePath": "database/Seeders/eggs/rust/egg-rust.json"
+    },
+    {
+      "id": "ptero-source-engine-ark-survival-evolved",
+      "name": "Ark: Survival Evolved",
+      "category": "game",
+      "image": "ghcr.io/pterodactyl/games:source",
+      "dockerImages": {
+        "ghcr.io/pterodactyl/games:source": "ghcr.io/pterodactyl/games:source"
+      },
+      "defaultDockerImageKey": "ghcr.io/pterodactyl/games:source",
+      "startupCommand": "rmv() { echo  \"stopping server\"; rcon -t rcon -a 127.0.0.1:${RCON_PORT} -p ${ARK_ADMIN_PASSWORD} saveworld &&rcon -t rcon -a 127.0.0.1:${RCON_PORT} -p ${ARK_ADMIN_PASSWORD} DoExit && wait ${ARK_PID}; echo \"Server Closed\"; exit; }; trap rmv 15 2; cd ShooterGame/Binaries/Linux && ./ShooterGameServer {{SERVER_MAP}}?listen?SessionName=\"{{SESSION_NAME}}\"?ServerPassword={{ARK_PASSWORD}}?ServerAdminPassword={{ARK_ADMIN_PASSWORD}}?Port={{SERVER_PORT}}?RCONPort={{RCON_PORT}}?QueryPort={{QUERY_PORT}}?RCONEnabled=True?MaxPlayers={{MAX_PLAYERS}}?GameModIds={{MOD_ID}}$( [ \"$BATTLE_EYE\" == \"1\" ] || printf %s ' -NoBattlEye' ) -server -automanagedmods {{ARGS}} -log & ARK_PID=$! ; until echo \"waiting for rcon connection...\"; (rcon -t rcon -a 127.0.0.1:${RCON_PORT} -p ${ARK_ADMIN_PASSWORD})<&0 & wait $!; do sleep 5; done",
+      "stopCommand": "^C",
+      "defaultPorts": [
+        27015
+      ],
+      "env": {
+        "ARK_PASSWORD": "",
+        "ARK_ADMIN_PASSWORD": "PleaseChangeMe",
+        "SERVER_MAP": "TheIsland",
+        "SESSION_NAME": "A Pterodactyl Hosted ARK Server",
+        "RCON_PORT": "27020",
+        "QUERY_PORT": "27015",
+        "AUTO_UPDATE": "0",
+        "BATTLE_EYE": "1",
+        "SRCDS_APPID": "376030",
+        "ARGS": "",
+        "MOD_ID": "",
+        "MAX_PLAYERS": "12"
+      },
+      "eggAuthor": "support@pterodactyl.io",
+      "eggDescription": "As a man or woman stranded, naked, freezing, and starving on the unforgiving shores of a mysterious island called ARK, use your skill and cunning to kill or tame and ride the plethora of leviathan dinosaurs and other primeval creatures roaming the land. Hunt, harvest resources, craft items, grow crops, research technologies, and build shelters to withstand the elements and store valuables, all while teaming up with (or preying upon) hundreds of other players to survive, dominate... and escape! — Gamepedia: ARK",
+      "pteroFeatures": [
+        "steam_disk_space"
+      ],
+      "sourcePath": "database/Seeders/eggs/source-engine/egg-ark--survival-evolved.json"
+    },
+    {
+      "id": "ptero-source-engine-counter-strike-global-offensive",
+      "name": "Counter-Strike: Global Offensive",
+      "category": "game",
+      "image": "ghcr.io/pterodactyl/games:source",
+      "dockerImages": {
+        "default": "ghcr.io/pterodactyl/games:source"
+      },
+      "defaultDockerImageKey": "default",
+      "startupCommand": "./srcds_run -game csgo -console -port {{SERVER_PORT}} +ip 0.0.0.0 +map {{SRCDS_MAP}} -strictportbind -norestart +sv_setsteamaccount {{STEAM_ACC}}",
+      "stopCommand": "quit",
+      "defaultPorts": [
+        27015
+      ],
+      "env": {
+        "SRCDS_MAP": "de_dust2",
+        "STEAM_ACC": "",
+        "SRCDS_APPID": "740"
+      },
+      "eggAuthor": "support@pterodactyl.io",
+      "eggDescription": "Counter-Strike: Global Offensive is a multiplayer first-person shooter video game developed by Hidden Path Entertainment and Valve Corporation.",
+      "pteroFeatures": [
+        "gsl_token",
+        "steam_disk_space"
+      ],
+      "sourcePath": "database/Seeders/eggs/source-engine/egg-counter--strike--global-offensive.json"
+    },
+    {
+      "id": "ptero-source-engine-custom-source-engine-game",
+      "name": "Custom Source Engine Game",
+      "category": "game",
+      "image": "ghcr.io/pterodactyl/games:source",
+      "dockerImages": {
+        "default": "ghcr.io/pterodactyl/games:source"
+      },
+      "defaultDockerImageKey": "default",
+      "startupCommand": "./srcds_run -game {{SRCDS_GAME}} -console -port {{SERVER_PORT}} +map {{SRCDS_MAP}} +ip 0.0.0.0 -strictportbind -norestart",
+      "stopCommand": "quit",
+      "defaultPorts": [
+        27015
+      ],
+      "env": {
+        "SRCDS_APPID": "",
+        "SRCDS_GAME": "",
+        "SRCDS_MAP": "",
+        "STEAM_USER": "",
+        "STEAM_PASS": "",
+        "STEAM_AUTH": ""
+      },
+      "eggAuthor": "support@pterodactyl.io",
+      "eggDescription": "This option allows modifying the startup arguments and other details to run a custom SRCDS based game on the panel.",
+      "pteroFeatures": [
+        "steam_disk_space"
+      ],
+      "sourcePath": "database/Seeders/eggs/source-engine/egg-custom-source-engine-game.json"
+    },
+    {
+      "id": "ptero-source-engine-garrys-mod",
+      "name": "Garrys Mod",
+      "category": "game",
+      "image": "ghcr.io/pterodactyl/games:source",
+      "dockerImages": {
+        "default": "ghcr.io/pterodactyl/games:source"
+      },
+      "defaultDockerImageKey": "default",
+      "startupCommand": "./srcds_run -game garrysmod -console -port {{SERVER_PORT}} +ip 0.0.0.0 +host_workshop_collection {{WORKSHOP_ID}} +map {{SRCDS_MAP}} +gamemode {{GAMEMODE}} -strictportbind -norestart +sv_setsteamaccount {{STEAM_ACC}} +maxplayers {{MAX_PLAYERS}}  -tickrate {{TICKRATE}}  $( [ \"$LUA_REFRESH\" == \"1\" ] || printf %s '-disableluarefresh' )",
+      "stopCommand": "quit",
+      "defaultPorts": [
+        27015
+      ],
+      "env": {
+        "SRCDS_MAP": "gm_flatgrass",
+        "STEAM_ACC": "",
+        "SRCDS_APPID": "4020",
+        "WORKSHOP_ID": "",
+        "GAMEMODE": "sandbox",
+        "MAX_PLAYERS": "32",
+        "TICKRATE": "22",
+        "LUA_REFRESH": "0"
+      },
+      "eggAuthor": "support@pterodactyl.io",
+      "eggDescription": "Garrys Mod, is a sandbox physics game created by Garry Newman, and developed by his company, Facepunch Studios.",
+      "pteroFeatures": [
+        "gsl_token",
+        "steam_disk_space"
+      ],
+      "sourcePath": "database/Seeders/eggs/source-engine/egg-garrys-mod.json"
+    },
+    {
+      "id": "ptero-source-engine-insurgency",
+      "name": "Insurgency",
+      "category": "game",
+      "image": "ghcr.io/pterodactyl/games:source",
+      "dockerImages": {
+        "default": "ghcr.io/pterodactyl/games:source"
+      },
+      "defaultDockerImageKey": "default",
+      "startupCommand": "./srcds_run -game insurgency -console -port {{SERVER_PORT}} +map {{SRCDS_MAP}} +ip 0.0.0.0 -strictportbind -norestart",
+      "stopCommand": "quit",
+      "defaultPorts": [
+        27015
+      ],
+      "env": {
+        "SRCDS_APPID": "237410",
+        "SRCDS_MAP": "sinjar"
+      },
+      "eggAuthor": "support@pterodactyl.io",
+      "eggDescription": "Take to the streets for intense close quarters combat, where a team's survival depends upon securing crucial strongholds and destroying enemy supply in this multiplayer and cooperative Source Engine based experience.",
+      "pteroFeatures": [
+        "steam_disk_space"
+      ],
+      "sourcePath": "database/Seeders/eggs/source-engine/egg-insurgency.json"
+    },
+    {
+      "id": "ptero-source-engine-team-fortress2",
+      "name": "Team Fortress 2",
+      "category": "game",
+      "image": "ghcr.io/pterodactyl/games:source",
+      "dockerImages": {
+        "default": "ghcr.io/pterodactyl/games:source"
+      },
+      "defaultDockerImageKey": "default",
+      "startupCommand": "./srcds_run -game tf -console -port {{SERVER_PORT}} +map {{SRCDS_MAP}} +ip 0.0.0.0 -strictportbind -norestart +sv_setsteamaccount {{STEAM_ACC}}",
+      "stopCommand": "quit",
+      "defaultPorts": [
+        27015
+      ],
+      "env": {
+        "SRCDS_APPID": "232250",
+        "SRCDS_MAP": "cp_dustbowl",
+        "STEAM_ACC": ""
+      },
+      "eggAuthor": "support@pterodactyl.io",
+      "eggDescription": "Team Fortress 2 is a team-based first-person shooter multiplayer video game developed and published by Valve Corporation. It is the sequel to the 1996 mod Team Fortress for Quake and its 1999 remake.",
+      "pteroFeatures": [
+        "gsl_token",
+        "steam_disk_space"
+      ],
+      "sourcePath": "database/Seeders/eggs/source-engine/egg-team-fortress2.json"
+    },
+    {
+      "id": "ptero-voice-servers-mumble-server",
+      "name": "Mumble Server",
+      "category": "game",
+      "image": "ghcr.io/parkervcp/yolks:voice_mumble",
+      "dockerImages": {
+        "Mumble": "ghcr.io/parkervcp/yolks:voice_mumble"
+      },
+      "defaultDockerImageKey": "Mumble",
+      "startupCommand": "mumble-server -fg -ini murmur.ini",
+      "stopCommand": "^C",
+      "defaultPorts": [
+        64738
+      ],
+      "env": {
+        "MAX_USERS": "100"
+      },
+      "eggAuthor": "support@pterodactyl.io",
+      "eggDescription": "Mumble is an open source, low-latency, high quality voice chat software primarily intended for use while gaming.",
+      "pteroFeatures": [],
+      "sourcePath": "database/Seeders/eggs/voice-servers/egg-mumble-server.json"
+    },
+    {
+      "id": "ptero-voice-servers-teamspeak3-server",
+      "name": "Teamspeak3 Server",
+      "category": "game",
+      "image": "ghcr.io/pterodactyl/yolks:debian",
+      "dockerImages": {
+        "ghcr.io/pterodactyl/yolks:debian": "ghcr.io/pterodactyl/yolks:debian"
+      },
+      "defaultDockerImageKey": "ghcr.io/pterodactyl/yolks:debian",
+      "startupCommand": "./ts3server default_voice_port={{SERVER_PORT}} query_port={{QUERY_PORT}} filetransfer_ip=0.0.0.0 filetransfer_port={{FILE_TRANSFER}} query_http_port={{QUERY_HTTP}} query_ssh_port={{QUERY_SSH}} query_protocols={{QUERY_PROTOCOLS_VAR}} serveradmin_password={{SERVERADMIN_PASSWORD}} license_accepted=1",
+      "stopCommand": "^C",
+      "installPipelineId": "teamspeak3",
+      "defaultPorts": [
+        9987,
+        10011,
+        30033,
+        10080,
+        10022
+      ],
+      "env": {
+        "TS_VERSION": "latest",
+        "FILE_TRANSFER": "30033",
+        "QUERY_PORT": "10011",
+        "QUERY_PROTOCOLS_VAR": "raw,http,ssh",
+        "QUERY_SSH": "10022",
+        "QUERY_HTTP": "10080",
+        "SERVERADMIN_PASSWORD": ""
+      },
+      "eggAuthor": "support@pterodactyl.io",
+      "eggDescription": "VoIP software designed with security in mind, featuring crystal clear voice quality, endless customization options, and scalabilty up to thousands of simultaneous users.",
+      "pteroFeatures": [],
+      "sourcePath": "database/Seeders/eggs/voice-servers/egg-teamspeak3-server.json"
+    }
+  ]
+}
