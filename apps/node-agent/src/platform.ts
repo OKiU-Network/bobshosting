@@ -49,7 +49,7 @@ export function isPathInsideBase(base: string, resolved: string): boolean {
 }
 
 /**
- * Pterodactyl egg startups often use `/bin/sh -lc` inside Docker.
+ * Pterodactyl egg startups expect bash (`[[`, `$( )`); Docker runs `/bin/bash -lc`.
  * On Windows process mode we run cmd.exe — bash constructs break.
  */
 export function startupUsesBashSyntax(startupCommand: string): boolean {

@@ -577,7 +577,7 @@ async function runProvisionPipeline(input: {
   if (isWindowsProcessMode() && startupUsesBashSyntax(input.startupCommand)) {
     appendLog(
       input.serverId,
-      '[Error] Startup command uses bash/Linux shell syntax (e.g. $(...)). Windows cmd cannot run it. Use RUNTIME_DRIVER=docker so the container runs /bin/sh, choose Paper/Vanilla with a plain java -jar line, or deploy on Linux/Unraid.'
+      '[Error] Startup command uses bash/Linux shell syntax (e.g. $(...)). Windows cmd cannot run it. Use RUNTIME_DRIVER=docker (container uses bash for egg startups), choose a plain java -jar line for process mode, or deploy on Linux/Unraid.'
     )
     setStatus(input.serverId, 'error')
     return
@@ -724,6 +724,11 @@ function parseDockerLogs(buffer: Buffer): string[] {
   return buffer.toString('utf-8').split('\n').map(l => l.trim()).filter(Boolean)
 }
 
+/** Pterodactyl-style startups use bash (`[[ ... ]]`, `$( )`). POSIX `/bin/sh` is often dash — use bash. */
+function dockerInteractiveCmd(shellCommand: string): string[] {
+  return ['/bin/bash', '-lc', shellCommand]
+}
+
 // ── Main server ────────────────────────────────────────────────────────────────
 async function main() {
   const app = Fastify({ logger: true })
@@ -833,7 +838,7 @@ async function main() {
           const container = await dockerClient.createContainer({
             name: getContainerName(payload.serverId),
             Image: payload.image,
-            Cmd: ['/bin/sh', '-lc', payload.startupCommand],
+            Cmd: dockerInteractiveCmd(payload.startupCommand),
             Env: Object.entries(payload.env ?? {}).map(([k, v]) => `${k}=${v}`),
             ExposedPorts: exposedPorts,
             HostConfig: {
@@ -1047,7 +1052,7 @@ async function main() {
 
     const container = await getContainerByName(serverId)
     if (!container) return { isSuccess: false, message: 'Container not found' }
-    const exec = await container.exec({ Cmd: ['/bin/sh', '-lc', command], AttachStdout: true, AttachStderr: true })
+    const exec = await container.exec({ Cmd: dockerInteractiveCmd(command), AttachStdout: true, AttachStderr: true })
     const stream = await exec.start({ hijack: true, stdin: false })
     const output = await new Promise<string>((resolve, reject) => {
       const chunks: Buffer[] = []
