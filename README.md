@@ -36,3 +36,24 @@ Node runtime operations are designed to execute against a remote Linux host runn
 ## Customer-Later Checklist
 
 See `docs/customer-hardening-checklist.md`.
+
+## Ubuntu server (one-liner bootstrap)
+
+Upstream repo: [OKiU-Network/bobshosting](https://github.com/OKiU-Network/bobshosting). The repo must be **public** for the raw `curl` URL to work (or clone privately and run `bootstrap.sh` from disk).
+
+```bash
+export WAVE_REPO_URL=https://github.com/OKiU-Network/bobshosting.git
+curl -fsSL https://raw.githubusercontent.com/OKiU-Network/bobshosting/main/scripts/bootstrap.sh | sudo -E bash
+```
+
+If your default branch is not `main`, change it in the `raw.githubusercontent.com` URL.
+
+- You are asked: **Customize secrets and `PUBLIC_API_URL` now?** Answer **N** (or Enter) to use **auto-generated secrets** and **auto-detected** `PUBLIC_API_URL`. Answer **y** to type `JWT_SECRET`, `POSTGRES_PASSWORD`, and/or `PUBLIC_API_URL` (blank fields get random or auto-detect).
+- **Private repo:** GitHub raw URLs need auth — clone with a **deploy key** or **PAT** to e.g. `/opt/wave-hosting`, then:
+
+```bash
+cd /opt/wave-hosting && sudo bash scripts/bootstrap.sh
+```
+
+- **No prompts** (CI / cloud-init): `export WAVE_NONINTERACTIVE=1` before running `bootstrap.sh`.
+- After bootstrap, the same machine can be re-run with `sudo bash scripts/ubuntu-first-install.sh` (see `scripts/ubuntu-first-install.sh` for rebuild behavior).

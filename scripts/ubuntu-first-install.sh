@@ -7,10 +7,13 @@
 # waits until API + panel respond. Named volumes (Postgres, API data, server files) are kept
 # unless you use "docker compose … down -v".
 #
-# Prerequisites: this repository already on the server (git clone, scp, etc.).
+# Prerequisites: this repository already on the server — or use scripts/bootstrap.sh
+# (clone + optional .env prompts + this script).
 #
 #   cd /path/to/Hosting
 #   sudo bash scripts/ubuntu-first-install.sh
+#
+# One-liner (set your repo URL): see scripts/bootstrap.sh header.
 #
 # Optional: force the browser→API URL used when building the web image (LAN IP, domain):
 #   export PUBLIC_API_URL=http://203.0.113.10:4000
